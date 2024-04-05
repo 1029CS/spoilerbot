@@ -1,6 +1,6 @@
 import praw
 import requests
-import os
+import webbrowser
 
 auth = requests.auth.HTTPBasicAuth('2a4XQHF_yPej48GS1zXZ-g', 'rOFpk4ciJ22IWM4J7YzjH9ad2FZlRA')
 
@@ -27,41 +27,32 @@ reddit = praw.Reddit(
     user_agent='USER_AGENT',
 )
 
-def gallery_images(url):
+def get_gallery_images(url):
     submission = reddit.submission(url=url)
+    images = []
     for item in sorted(submission.gallery_data['items'], key=lambda x: x['id']):
         media_id = item['media_id']
         meta = submission.media_metadata[media_id]
         if meta['e'] == 'Image':
             source = meta['s']
-            print('[%4dx%04d] %s' % (source['x'], source['y'], source['u']))
+            images.append(source['u'])
             previews = meta['p']
             preview = sorted(previews, key=lambda p: -p['x'])[0]
-            print('[%4dx%04d] %s' % (preview['x'], preview['y'], preview['u']))
-        print('=' * 70)
+            #images.append(preview['u'])
+    
+    return images
 
-        def image(url):
-            submission = reddit.submission(url=url)
-            image = submission.preview['images'][0]['source']['url']
-            print(image)
+def get_image(url):
+    submission = reddit.submission(url=url)
+    image = submission.preview['images'][0]['source']['url']
+    return image
 
-url = 'https://www.reddit.com/r/magicTCG/comments/1bvw7yb/otjotc_new_tokens_from_commander_decks_ox_clue/'
-submission = reddit.submission(url=url)
-for item in sorted(submission.gallery_data['items'], key=lambda x: x['id']):
-    media_id = item['media_id']
-    meta = submission.media_metadata[media_id]
-    if meta['e'] == 'Image':
-        source = meta['s']
-        print('[%4dx%04d] %s' % (source['x'], source['y'], source['u']))
-        previews = meta['p']
-        preview = sorted(previews, key=lambda p: -p['x'])[0]
-        print('[%4dx%04d] %s' % (preview['x'], preview['y'], preview['u']))
-    print('=' * 70)
+def get_title(url):
+    submission = reddit.submission(url=url)
+    return submission.title
 
-url = 'https://www.reddit.com/r/magicTCG/comments/1bvu1sw/otc_we_ride_at_dawn_most_wanted_the_command_zone/'
-submission = reddit.submission(url=url)
-image = submission.preview['images'][0]['source']['url']
-print(image)
+def main():
+    webbrowser.open(get_image('https://www.reddit.com/r/magicTCG/comments/1bvu1sw/otc_we_ride_at_dawn_most_wanted_the_command_zone/'))
 
-
-#print(os.getcwd())
+if __name__ == '__main__':
+    main()
