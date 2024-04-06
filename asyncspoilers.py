@@ -1,3 +1,4 @@
+import asyncpraw
 import praw
 import requests
 import webbrowser
@@ -21,17 +22,21 @@ headers = {**headers, **{'Authorization': f'bearer {TOKEN}'}}
 res = requests.get('https://oauth.reddit.com/api/v1/me', headers=headers).json()
 
 
-reddit = praw.Reddit(
+reddit = asyncpraw.Reddit(
     client_id='2a4XQHF_yPej48GS1zXZ-g',
     client_secret='rOFpk4ciJ22IWM4J7YzjH9ad2FZlRA',
     user_agent='USER_AGENT',
 )
 
-subreddit = reddit.subreddit('magicTCG')
-#find posts that have the spoiler tag
-spoilers = subreddit.search('flair:spoiler', sort='new', time_filter='week')
-for submission in spoilers:
-    print(submission.title)
+reddit = praw.Reddit(
+    client_id='2a4XQHF_yPej48GS1zXZ-g',
+    client_secret   ='rOFpk4ciJ22IWM4J7YzjH9ad2FZlRA',
+    user_agent='USER_AGENT',
+
+)
+
+
+
 
 def get_gallery_images(url):
     submission = reddit.submission(url=url)
@@ -57,8 +62,8 @@ def get_title(url):
     submission = reddit.submission(url=url)
     return submission.title
 
-# def main():
-#     webbrowser.open(get_image('https://www.reddit.com/r/magicTCG/comments/1bvu1sw/otc_we_ride_at_dawn_most_wanted_the_command_zone/'))
+def main():
+    webbrowser.open(get_image('https://www.reddit.com/r/magicTCG/comments/1bvu1sw/otc_we_ride_at_dawn_most_wanted_the_command_zone/'))
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
