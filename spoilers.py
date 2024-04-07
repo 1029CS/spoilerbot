@@ -1,16 +1,22 @@
 import praw
 import requests
 import webbrowser
+from dotenv import load_dotenv
+import os
 
-auth = requests.auth.HTTPBasicAuth('2a4XQHF_yPej48GS1zXZ-g', 'rOFpk4ciJ22IWM4J7YzjH9ad2FZlRA')
+load_dotenv()
 
-with open('pw.txt', 'r') as f:
-    password = f.read()
+PASSWORD = os.getenv('REDDIT_PASSWORD')
+REDDIT_TOKEN = os.getenv('REDDIT_TOKEN')   
+REDDIT_SECRET = os.getenv('REDDIT_SECRET')
+REDDIT_USERNAME = os.getenv('REDDIT_USERNAME')
+
+auth = requests.auth.HTTPBasicAuth(REDDIT_TOKEN, REDDIT_SECRET)
 
 data = {
     'grant_type': 'password',
-    'username': 'Silly_Historian_350',
-    'password': password
+    'username': REDDIT_USERNAME,
+    'password': PASSWORD
 }
 
 headers = {'User-Agent': 'MTGSpoilerAPI/0.0.1'}
@@ -22,8 +28,8 @@ res = requests.get('https://oauth.reddit.com/api/v1/me', headers=headers).json()
 
 
 reddit = praw.Reddit(
-    client_id='2a4XQHF_yPej48GS1zXZ-g',
-    client_secret='rOFpk4ciJ22IWM4J7YzjH9ad2FZlRA',
+    client_id=REDDIT_TOKEN,
+    client_secret=REDDIT_SECRET,
     user_agent='USER_AGENT',
 )
 

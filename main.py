@@ -1,12 +1,16 @@
 import discord
 import spoilers
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
-TOKEN = 'MTIyNTk0MzYxNjUzNTUyNzQ4NA.GlHkRB.mI1bm2Uje2-vr6YTz8iB6QrGe7QZt-B_MPc4YM'
+TOKEN = os.getenv('DISCORD_TOKEN')
+CHANNEL_ID = os.getenv('DISCORD_CHANNEL_ID')
 
-channel_id = 1225949347976446068
 
 @client.event
 async def on_ready():
@@ -15,7 +19,7 @@ async def on_ready():
     await client.close()
     
 async def send_message():
-    channel = client.get_channel(channel_id)
+    channel = client.get_channel(CHANNEL_ID)
     for i in range(len(spoilers.get_spoilers())):
         try :
             embed = discord.Embed(title=spoilers.get_title(spoilers.get_spoilers_url()[i]), url=spoilers.get_spoilers_url()[i])
