@@ -2,6 +2,7 @@ import discord
 import spoilers
 from dotenv import load_dotenv
 import os
+import traceback
 
 load_dotenv()
 
@@ -9,8 +10,7 @@ intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
 TOKEN = os.getenv('DISCORD_TOKEN')
-CHANNEL_ID = os.getenv('DISCORD_CHANNEL_ID')
-
+CHANNEL_ID = int(os.getenv('DISCORD_CHANNEL_ID'))
 
 @client.event
 async def on_ready():
@@ -27,6 +27,7 @@ async def send_message():
             await channel.send(embed=embed)
         except Exception as e:
             print(f"Error: {e}")
+            traceback.print_exception(e)
             continue    
         
 
