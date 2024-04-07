@@ -16,7 +16,6 @@ async def on_ready():
     
 async def send_message():
     channel = client.get_channel(channel_id)
-    url = 'https://www.reddit.com/r/magicTCG/comments/ptzv3e/innistrad_midnight_hunt_spoilers_912_full_set/'
     for i in range(len(spoilers.get_spoilers())):
         try :
             embed = discord.Embed(title=spoilers.get_title(spoilers.get_spoilers_url()[i]), url=spoilers.get_spoilers_url()[i])
