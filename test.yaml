@@ -1,0 +1,119 @@
+# How to use
+# sed -i 's/mtg-spoiler-bot/your-project-name/g' test.yaml
+# (Don't touch the dollar signs)
+# sed -i 's$https://github.com/1029CS/spoilerbot$your-github-url$g' test.yaml
+# Run the following command to generate the secrets
+# tr -dc a-z0-9 </dev/urandom | head -c 16 | base64
+# Copy the output and paste it in the test.yaml file where it says INSERT_HERE
+# See below for env vars
+# oc apply -f test.yaml OR on Web GUI Add > Import YAML
+
+apiVersion: v1
+data:
+  # tr -dc a-z0-9 </dev/urandom | head -c 16 | base64
+  WebHookSecretKey: NrNjYzj4suF66fzxY3Y0bg==
+kind: Secret
+metadata:
+  name: mtg-spoiler-bot-generic-webhook-secret
+  namespace: mtg-spoiler-bot
+type: Opaque
+
+---
+
+apiVersion: v1
+data:
+  # tr -dc a-z0-9 </dev/urandom | head -c 16 | base64
+  # Different than the other one
+  WebHookSecretKey: a+d6snRiOHhsuXBi6vL0cQ==
+kind: Secret
+metadata:
+  name: mtg-spoiler-bot-github-webhook-secret
+  namespace: mtg-spoiler-bot
+type: Opaque
+
+---
+
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: mtg-spoiler-bot
+  namespace: mtg-spoiler-bot
+spec:
+  lookupPolicy:
+    local: false
+
+---
+
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    app: mtg-spoiler-bot
+  name: mtg-spoiler-bot
+  namespace: mtg-spoiler-bot
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: mtg-spoiler-bot:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: /
+    git:
+      uri: https://github.com/1029CS/spoilerbot
+    type: Git
+  strategy:
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - generic:
+      secretReference:
+        name: mtg-spoiler-bot-generic-webhook-secret
+    type: Generic
+  - github:
+      secretReference:
+        name: mtg-spoiler-bot-github-webhook-secret
+    type: GitHub
+  - type: ConfigChange
+
+---
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mtg-spoiler-bot-cron
+  namespace: mtg-spoiler-bot
+spec:
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - image: image-registry.openshift-image-registry.svc:5000/mtg-spoiler-bot/mtg-spoiler-bot:latest
+            imagePullPolicy: Always
+            # Change/remove as needed
+            envFrom:
+              - configMapRef:
+                  name: env
+            name: mtg-spoiler-bot-cron
+            resources: {}
+            terminationMessagePath: /dev/termination-log
+            terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Never
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+  # Change as needed, keep in mind this is in UTC time
+  schedule: 30 4 * * *
+  startingDeadlineSeconds: 200
+  successfulJobsHistoryLimit: 3
+  suspend: false
